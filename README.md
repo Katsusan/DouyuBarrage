@@ -1,8 +1,8 @@
 # DouyuBarrage
-======================
+======================   
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/toomore/gogrs/master/LICENSE)
 
-A tool that gets Douyu barrages and send them to standard output.
+A tool that gets Douyu barrages and show them on standard output.
 
 Install
 --------------
@@ -26,9 +26,9 @@ Options
 Examples
 ---------------
 
-Get barrages from douyu.com/9999.
+Get barrages from douyu.com/60937.
 
-  dybarrage -rid 9999
+    dybarrage -rid 60937
 
 Snapshot
 ---------------
@@ -39,13 +39,13 @@ TODOs
 ---------------
 
 - Support more messages shown(such as gifts).
-- Support more ways of display.
+- Support more ways of display.(such as GUI)
 
 
 Related Project
 ---------------
 
-A Douyu barrage tool(python) also here. [https://github.com/rieuse/DouyuTV](https://github.com/rieuse/DouyuTV)
+A douyu barrage tool(python) also here. [https://github.com/rieuse/DouyuTV](https://github.com/rieuse/DouyuTV)
 
 
 License
