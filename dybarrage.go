@@ -23,14 +23,13 @@ const (
 var (
 	ErrDataTruncated = errors.New("Not a full server response")
 	tcpconn          *net.TCPConn
-	roomid           = flag.String("rid", "97376", "room id.")
-	startkl          = make(chan bool)
+	roomid           = flag.String("rid", "9999", "room id.")
 )
 
 func main() {
 	flag.Parse()
-	go keeplive()
 	initconn()
+	readresponse(tcpconn)
 	defer func() {
 		logout()
 		tcpconn.Close()
@@ -57,21 +56,13 @@ func initconn() {
 	loginreq := []byte("type@=loginreq" + "/roomid@=" + *roomid + "/")
 	sendmsg(tcpconn, loginreq)
 
-	//step3. check the server response
-	//srvres, err := readresponse(tcpconn)
-	//log.Printf("log-in response:%s\n", srvres)
-	//checkErr(err)
+	//step3. server response
+	//server do not check the user auth, so moves on
 
 	//step4. send barrage group request to server
 	groupreq := []byte("type@=joingroup/rid@=" + *roomid + "/gid@=-9999/")
 	sendmsg(tcpconn, groupreq)
-	startkl <- true
-
-	//step5. see what response will be returned
-	srvres2, err := readresponse(tcpconn)
-	log.Printf("groupreq response:%s\n", srvres2)
-	checkErr(err)
-
+	go keeplive()
 }
 
 func sendmsg(tc *net.TCPConn, b []byte) {
@@ -193,12 +184,12 @@ func responsHandle(serverres []byte) error {
 	return nil
 }
 
+//keeplive executed only after TCP connection established and loginreq/joingroup was sent
 func keeplive() {
 	//msg format: type@=keeplive/tick@=1541401463/
 	//keephead := []byte("type@=keeplive/tick@=") -> old format,depreciated
 	keepmsg := []byte("type@=mrkl/")
-	st := <-startkl //ensure that keeplive executed only after TCP connection established + loginreq/joingroup was sent
-	if st {
+	if true {
 		for {
 			sendmsg(tcpconn, keepmsg)
 			time.Sleep(45 * time.Second)

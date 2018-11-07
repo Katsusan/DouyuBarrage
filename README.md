@@ -20,7 +20,7 @@ currently only entrance message and chat message will be shown.
 Options
 ---------------
 
-- `-rid` room id in Douyu. such as : if stream url is "https://douyu.com/97376", then room id will be 97376, default is 97376.
+- `-rid` room id in Douyu. such as : if stream url is "https://douyu.com/97376", then room id will be 97376, default is 9999.
 
 
 Examples
