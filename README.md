@@ -33,7 +33,7 @@ Get barrages from douyu.com/60937.
 Snapshot
 ---------------
 
-![image](snapshot/exmp.png)
+![image](snapshot/exmp.PNG)
 
 TODOs
 ---------------
