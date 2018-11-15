@@ -198,6 +198,10 @@ func keeplive() {
 
 }
 
+func initdb() {
+
+}
+
 func logout() {
 	logoutmsg := []byte("type@=logout/")
 	sendmsg(tcpconn, logoutmsg)
