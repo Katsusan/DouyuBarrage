@@ -12,22 +12,55 @@ import (
 	"regexp"
 	"strconv"
 	"time"
+
+	"./data"
+	"./db"
 )
 
 const (
 	SERVER_PROTOCOL string = "tcp4"
 	BARRAGE_SERVER  string = "openbarrage.douyutv.com"
 	SERVER_PORT     string = "8601"
+	TABLE_PREFIX    string = "barrage_"
 )
 
 var (
 	ErrDataTruncated = errors.New("Not a full server response")
 	tcpconn          *net.TCPConn
-	roomid           = flag.String("rid", "9999", "room id.")
+	mysqlcfg         = new(data.MysqlConfig)
+	roomid           *string
+	dbOK             bool = false
 )
 
-func main() {
+func init() {
+	log.Printf("main.init exec.\n")
+	roomid = flag.String("rid", "9999", "room id.")
+	flag.StringVar(&mysqlcfg.Username, "u", "root", "username used for connecting MySQL")
+	flag.StringVar(&mysqlcfg.Password, "p", "", "password used for authorizing")
+	flag.StringVar(&mysqlcfg.Host, "h", "127.0.0.1", "given host for connection")
+	flag.StringVar(&mysqlcfg.Port, "port", "3306", "tcp/ip port for connection")
+	flag.StringVar(&mysqlcfg.DbName, "d", "dybarrage", "database for storing barrages")
+	flag.StringVar(&mysqlcfg.CharSet, "c", "utf8", "character set for connecting Mysql")
+	mysqlcfg.TableID = *roomid
+
 	flag.Parse()
+
+	//only parameter count > 2 means will store barrages into DB
+	if flag.NFlag() > 1 {
+		//go DB initialization
+		err := db.InitEngine(mysqlcfg)
+
+		if err != nil {
+			log.Printf("DB initializing failed. And will not write barrages into DB\n")
+		} else {
+			//otherwise means DB connect OK
+			dbOK = true
+		}
+	}
+
+}
+
+func main() {
 	initconn()
 	readresponse(tcpconn)
 	defer func() {
@@ -176,6 +209,13 @@ func responsHandle(serverres []byte) error {
 		nickname := renickname.FindSubmatch(serverres)[1]
 		chatmsg := rechatmsg.FindSubmatch(serverres)[1]
 		fmt.Printf("%s: %s\n", nickname, chatmsg)
+		if dbOK == true {
+			affected, err := db.MainDB.Insert(&data.Barrage{Nickname: string(nickname), Chatmsg: string(chatmsg), Roomid: *roomid})
+			log.Printf("affected: %d, error: %v\n", affected, err)
+			if err != nil {
+				log.Printf("Barrage insert failed, %s: %s\n", nickname, chatmsg)
+			}
+		}
 	default:
 		//barrage and other message(such as gift.)
 		//log.Printf("message->%s\n", serverres)
